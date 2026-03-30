@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
-import cors from "cors"; // ✅ import cors
+import cors from "cors";
+import express from "express"; // cần để thêm express.json()
 import { createApp } from "./app/createApp.js";
 import { testDatabaseConnection } from "./shared/prisma/prisma.service.js";
 
@@ -17,8 +18,7 @@ async function bootstrap() {
       dbConnected = await testDatabaseConnection();
       if (dbConnected) break;
       console.error(
-        `❌ Database connection attempt ${attempt} failed. Retrying in ${RETRY_DELAY_MS / 1000
-        }s...`
+        `❌ Database connection attempt ${attempt} failed. Retrying in ${RETRY_DELAY_MS / 1000}s...`
       );
     } catch (err) {
       console.error(`❌ Database connection attempt ${attempt} error:`, err);
@@ -30,26 +30,39 @@ async function bootstrap() {
     console.error(
       `❌ Could not connect to database after ${MAX_DB_RETRIES} attempts. Exiting...`
     );
-    process.exit(1); // chỉ exit nếu chắc chắn db không connect
+    process.exit(1);
   }
 
   const app = await createApp();
 
-  // ✅ Thêm CORS middleware trực tiếp tại đây
+  // ✅ Thêm middleware parse JSON
+  app.use(express.json());
+
+  // ✅ Thêm CORS middleware chuẩn
   app.use(
     cors({
-      origin: process.env.CLIENT_URL || "*", // frontend domain hoặc "*" nếu muốn mở
+      origin: process.env.CLIENT_URL || "*", // domain frontend dev hoặc deploy
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      credentials: true, // nếu frontend gửi cookie
+      allowedHeaders: ["Content-Type", "Authorization"], // bắt buộc cho preflight JSON
+      credentials: true,
     })
   );
 
-  // ✅ Xử lý preflight request cho tất cả route đúng chuẩn Express 5
-  app.options(/(.*)/, cors());
+  // ✅ Xử lý preflight request cho tất cả route
+  app.options(/.*/, cors());
 
-  // ✅ Server always listens on Render-provided PORT
+  // ✅ Log request body để debug payload
+  app.use((req, res, next) => {
+    if (req.method === "POST" || req.method === "PUT") {
+      console.log(`[Request] ${req.method} ${req.url} - Body:`, req.body);
+    }
+    next();
+  });
+
+  // ✅ Server luôn listen trên PORT
   const server = app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
+    console.log(`🌐 CORS allowed for origin: ${process.env.CLIENT_URL || "*"}`);
   });
 
   // ✅ Graceful shutdown
