@@ -38,7 +38,7 @@ async function bootstrap() {
   }));
 
   // ✅ Xử lý preflight request
-  app.options("*", cors());
+  app.options("/*", cors());
 
   // ✅ Server always listens on Render-provided PORT
   const server = app.listen(PORT, () => {
