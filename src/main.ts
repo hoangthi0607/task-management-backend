@@ -39,18 +39,17 @@ async function bootstrap() {
   app.use(express.json());
 
   // ✅ Thêm CORS middleware chuẩn
-  const corsOptions = {
-    origin: process.env.CLIENT_URL || "http://localhost:5173", // Set đúng domain frontend (không dùng "*")
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
-    exposedHeaders: ["Authorization"],
-    credentials: true,
-  };
+  app.use(
+    cors({
+      origin: process.env.CLIENT_URL || "*", // domain frontend dev hoặc deploy
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"], // bắt buộc cho preflight JSON
+      credentials: true,
+    })
+  );
 
-  app.use(cors(corsOptions));
-
-  // ✅ Xử lý preflight request cho tất cả route (sử dụng cùng options)
-  app.options("/*", cors(corsOptions));
+  // ✅ Xử lý preflight request cho tất cả route
+  app.options(/.*/, cors());
 
   // ✅ Log request body để debug payload
   app.use((req, res, next) => {
