@@ -28,4 +28,4 @@ COPY --from=builder /app/.env ./
 EXPOSE 3000
 
 # 💣 RESET DB + SEED + START
-CMD ["sh", "-c", "npx prisma migrate reset --force && npx prisma migrate dev 20260330044319_add_user_status  && npm run seed && npm run build && npm run start"]
+CMD ["sh", "-c", "npx prisma migrate reset --force && npx prisma migrate dev 20260330044319_add_user_status  && npm run seed && npm run start"]
