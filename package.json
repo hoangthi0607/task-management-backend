@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon",
-    "start": "tsx src/main.ts",
+    "start": "node dist/main.js",
     "build": "tsc",
     "seed": "tsx prisma/seed.ts"
   },

@@ -52,6 +52,7 @@ async function main() {
     update: {},
     create: {
       email: "user@task.local",
+      name: "Regular User",
       password: passwordHash,
       role_id: roleUser.role_id,
       department_id: department.department_id,
