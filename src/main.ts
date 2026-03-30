@@ -2,37 +2,51 @@ import dotenv from "dotenv";
 import { createApp } from "./app/createApp.js";
 import { testDatabaseConnection } from "./shared/prisma/prisma.service.js";
 
-// ✅ Load environment variables BEFORE importing modules that need them
+// ✅ Load environment variables BEFORE anything else
 dotenv.config();
 
 async function bootstrap() {
-  try {
-    // ✅ Test database connection before starting server
-    const dbConnected = await testDatabaseConnection();
-    if (!dbConnected) {
-      console.error("❌ Failed to connect to database. Exiting...");
-      process.exit(1);
+  const PORT = process.env.PORT || 3000;
+  const MAX_DB_RETRIES = 5;
+  const RETRY_DELAY_MS = 5000; // 5 giây giữa các lần thử
+
+  let dbConnected = false;
+  for (let attempt = 1; attempt <= MAX_DB_RETRIES; attempt++) {
+    try {
+      dbConnected = await testDatabaseConnection();
+      if (dbConnected) break;
+      console.error(`❌ Database connection attempt ${attempt} failed. Retrying in ${RETRY_DELAY_MS / 1000}s...`);
+    } catch (err) {
+      console.error(`❌ Database connection attempt ${attempt} error:`, err);
     }
-
-    const app = await createApp();
-    const PORT = process.env.PORT || 3000;
-    
-    const server = app.listen(PORT, () => {
-      console.log(`✅ Server running on port ${PORT}`);
-    });
-
-    // ✅ Graceful shutdown for express server
-    process.on("SIGINT", () => {
-      console.log("\n[Server] Shutting down gracefully...");
-      server.close(() => {
-        console.log("[Server] HTTP server closed");
-        process.exit(0);
-      });
-    });
-  } catch (error) {
-    console.error("❌ Bootstrap error:", error);
-    process.exit(1);
+    await new Promise((res) => setTimeout(res, RETRY_DELAY_MS));
   }
+
+  if (!dbConnected) {
+    console.error(`❌ Could not connect to database after ${MAX_DB_RETRIES} attempts. Exiting...`);
+    process.exit(1); // chỉ exit nếu chắc chắn db không connect
+  }
+
+  const app = await createApp();
+
+  // ✅ Server always listens on Render-provided PORT
+  const server = app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
+  });
+
+  // ✅ Graceful shutdown
+  process.on("SIGINT", () => {
+    console.log("\n[Server] Shutting down gracefully...");
+    server.close(() => {
+      console.log("[Server] HTTP server closed");
+      process.exit(0);
+    });
+  });
+
+  process.on("SIGTERM", () => {
+    console.log("\n[Server] SIGTERM received, shutting down...");
+    server.close(() => process.exit(0));
+  });
 }
 
 bootstrap();
