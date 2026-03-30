@@ -23,7 +23,9 @@ export function createApp() {
     app.use("/api", routes);
 
     // Swagger documentation
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+    if (process.env.NODE_ENV !== "production") {
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+    }
 
     // Error handling middleware
     app.use(errorHandler);
