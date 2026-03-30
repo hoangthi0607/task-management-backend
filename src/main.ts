@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import cors from "cors"; // ✅ import cors
 import { createApp } from "./app/createApp.js";
 import { testDatabaseConnection } from "./shared/prisma/prisma.service.js";
 
@@ -28,6 +29,16 @@ async function bootstrap() {
   }
 
   const app = await createApp();
+
+  // ✅ Thêm CORS middleware trực tiếp tại đây
+  app.use(cors({
+    origin: process.env.CLIENT_URL || "*", // frontend domain hoặc "*" nếu muốn mở
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true, // nếu frontend gửi cookie
+  }));
+
+  // ✅ Xử lý preflight request
+  app.options("*", cors());
 
   // ✅ Server always listens on Render-provided PORT
   const server = app.listen(PORT, () => {
