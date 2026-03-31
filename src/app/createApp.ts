@@ -9,8 +9,8 @@ export function createApp() {
 
     // ✅ CORS config
     const allowedOrigins = [
-        process.env.CLIENT_URL,       // production FE
-        "http://localhost:5173",      // dev FE
+        process.env.CLIENT_URL,
+        "http://localhost:5173",
     ].filter(Boolean);
 
     const corsOptions = {
@@ -24,11 +24,10 @@ export function createApp() {
         credentials: true,
     };
 
-    // ✅ CORS phải đứng TRƯỚC routes
+    // ✅ CORS phải đứng trước routes
     app.use(cors(corsOptions));
 
-    // ✅ Fix preflight (QUAN TRỌNG)
-    app.options("*", cors(corsOptions));
+    // ❌ ĐÃ XÓA: app.options("*", cors(corsOptions));
 
     // ✅ Log request raw
     app.use((req, res, next) => {
@@ -36,7 +35,7 @@ export function createApp() {
         next();
     });
 
-    // ✅ JSON parser (chỉ dùng 1 lần)
+    // ✅ JSON parser
     app.use(express.json());
 
     // ✅ Debug body
