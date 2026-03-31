@@ -19,7 +19,7 @@ export function createApp() {
             if (allowedOrigins.includes(origin)) return callback(null, true);
             return callback(new Error(`CORS policy: Origin ${origin} not allowed`));
         },
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        methods: ["GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
     };
