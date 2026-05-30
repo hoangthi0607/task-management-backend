@@ -2,56 +2,53 @@
  * @swagger
  * components:
  *   schemas:
- *     Notification:
- *       type: object
- *       required:
- *         - user_id
- *         - message
- *         - type
- *       properties:
- *         notification_id:
- *           type: integer
- *           description: The auto-generated id of the notification
- *         user_id:
- *           type: integer
- *           description: ID người dùng nhận thông báo
- *         task_id:
- *           type: integer
- *           description: ID công việc liên quan (tùy chọn)
- *         message:
- *           type: string
- *           description: Nội dung thông báo
- *         type:
- *           type: string
- *           enum: [task_assigned, task_completed, task_overdue, project_update, system]
- *           description: Loại thông báo
- *         is_read:
- *           type: boolean
- *           description: Trạng thái đã đọc
- *         created_at:
- *           type: string
- *           format: date-time
- *           description: Thời gian tạo thông báo
  *     CreateNotificationDto:
  *       type: object
  *       required:
  *         - user_id
  *         - message
- *         - type
  *       properties:
+ *         title:
+ *           type: string
+ *           description: Tiêu đề thông báo
+ *         content:
+ *           type: string
+ *           description: Nội dung chi tiết
+ *         message:
+ *           type: string
+ *           description: Tin nhắn thông báo chính
  *         user_id:
  *           type: integer
  *           description: ID người dùng nhận thông báo
  *         task_id:
  *           type: integer
  *           description: ID công việc liên quan (tùy chọn)
- *         message:
- *           type: string
- *           description: Nội dung thông báo
- *         type:
- *           type: string
- *           enum: [task_assigned, task_completed, task_overdue, project_update, system]
- *           description: Loại thông báo
+ * 
+ *     Notification:
+ *       type: object
+ *       required:
+ *         - notification_id
+ *         - is_read
+ *         - created_at
+ *       allOf:
+ *         - $ref: '#/components/schemas/CreateNotificationDto'
+ *         - type: object
+ *           properties:
+ *             notification_id:
+ *               type: integer
+ *               description: The auto-generated id of the notification
+ *             is_read:
+ *               type: boolean
+ *               description: Trạng thái đã đọc
+ *             created_at:
+ *               type: string
+ *               format: date-time
+ *               description: Thời gian tạo thông báo
+ * 
+ *     UpdateNotificationDto:
+ *       type: object
+ *       allOf:
+ *         - $ref: '#/components/schemas/CreateNotificationDto'
  */
 
 /**
