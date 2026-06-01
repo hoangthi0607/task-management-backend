@@ -10,45 +10,64 @@
  *       properties:
  *         title:
  *           type: string
+ *           nullable: true
  *           description: Tiêu đề thông báo
- *         content:
- *           type: string
- *           description: Nội dung chi tiết
  *         message:
  *           type: string
  *           description: Tin nhắn thông báo chính
+ *         content:
+ *           type: string
+ *           nullable: true
+ *           description: Nội dung chi tiết
+ *         scheduled_at:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           description: Thời gian hẹn giờ gửi thông báo (Định dạng ISO 8601)
  *         user_id:
  *           type: integer
+ *           nullable: true
  *           description: ID người dùng nhận thông báo
  *         task_id:
  *           type: integer
- *           description: ID công việc liên quan (tùy chọn)
+ *           nullable: true
+ *           description: ID công việc liên quan
  * 
  *     Notification:
  *       type: object
  *       required:
  *         - notification_id
- *         - is_read
- *         - created_at
+ *         - message
+ *         - is_sent
+ *         - is_seen
  *       allOf:
  *         - $ref: '#/components/schemas/CreateNotificationDto'
  *         - type: object
  *           properties:
  *             notification_id:
  *               type: integer
- *               description: The auto-generated id of the notification
- *             is_read:
+ *               description: ID tự động tăng của thông báo
+ *             is_seen:
  *               type: boolean
- *               description: Trạng thái đã đọc
+ *               default: false
+ *               description: Trạng thái người dùng đã xem thông báo chưa
+ *             seen_at:
+ *               type: string
+ *               format: date-time
+ *               nullable: true
+ *               description: Thời gian người dùng click xem thông báo
  *             created_at:
  *               type: string
  *               format: date-time
- *               description: Thời gian tạo thông báo
+ *               nullable: true
+ *               description: Thời gian tạo thông báo trong hệ thống
  * 
  *     UpdateNotificationDto:
  *       type: object
- *       allOf:
- *         - $ref: '#/components/schemas/CreateNotificationDto'
+ *       properties:
+ *         is_seen:
+ *           type: boolean
+ *           description: Cập nhật trạng thái đã xem (thường dùng cho API Patch khi user click đọc thông báo)
  */
 
 /**
