@@ -2,7 +2,7 @@ export interface CreateNotificationDto {
   title?: string;
   content?: string;
   message: string;
-  schedule_at?: Date;
+  scheduled_at?: Date;
   user_id?: number;
   task_id?: number;
 }

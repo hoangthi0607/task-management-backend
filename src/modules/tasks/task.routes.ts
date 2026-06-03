@@ -1,18 +1,22 @@
 import { Router } from "express";
 import { taskController } from "./task.controller.js";
+import { TaskService } from "./task.service.js";
+import { RabbitMQNotificationPublisher } from "./task.infrastructure.js";
 
 const taskRouter = Router();
+const notificationPublisher = new RabbitMQNotificationPublisher();
+const taskService = new TaskService(notificationPublisher);
+const taskControllerInstance = new taskController(taskService);
+taskRouter.get("/", taskControllerInstance.getAll);
 
-taskRouter.get("/", taskController.getAll);
+taskRouter.get("/:id", taskControllerInstance.getById);
 
-taskRouter.get("/:id", taskController.getById);
+taskRouter.post("/", (req, res) => taskControllerInstance.create(req, res));
 
-taskRouter.post("/", taskController.create);
+taskRouter.patch("/:id", (req, res) => taskControllerInstance.update(req, res));
 
-taskRouter.patch("/:id", taskController.update);
+taskRouter.delete("/:id", (req, res) => taskControllerInstance.delete(req, res));
 
-taskRouter.delete("/:id", taskController.delete);
-
-taskRouter.get("/project/:projectId", taskController.getByProject);
+taskRouter.get("/project/:projectId", (req, res) => taskControllerInstance.getByProject(req, res));
 
 export default taskRouter;

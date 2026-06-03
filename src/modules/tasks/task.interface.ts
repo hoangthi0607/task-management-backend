@@ -33,3 +33,31 @@ export interface ITaskRepository {
 
   delete(id: number): Promise<Task | null>;
 }
+export interface TaskData {
+  id: number;
+  name: string;
+  description?: string;
+  deadline?: Date;
+  status: TaskStatus;
+  project_id?: number;
+  assigned_user_id?: number;
+}
+
+export interface INotificationPublisher {
+  publish(taskData: TaskData): Promise<void>;
+}
+
+export interface TaskDueEvent {
+    eventId: string;
+    taskId: string;
+    userId: string;
+    scheduled_at: Date;
+    eventType: string;
+    timestamp: string;
+    payload: {
+        title: string;
+        body: string;
+    };
+}
+export { TaskStatus };
+

@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import cors from "cors";
 import routes from "./routes/index.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -50,9 +50,50 @@ export function createApp() {
 
     // Swagger (dev only)
     if (process.env.NODE_ENV !== "production") {
-        app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-    }
+        // 1. Cấu hình interceptor để đổi dữ liệu khi bấm nút Execute gửi đi
+        const swaggerOptions = {
+            swaggerOptions: {
+                requestInterceptor: (req: any) => {
+                    if (req.body && typeof req.body === 'string' && req.body.includes('CURRENT_TIMESTAMP')) {
+                        req.body = req.body.replace(/CURRENT_TIMESTAMP/g, new Date().toISOString());
+                    }
+                    return req;
+                }
+            }
+        };
 
+        // 2. Middleware chèn Script xử lý giao diện trực tiếp vào file HTML của Swagger UI
+        app.use("/api-docs", (req: express.Request, res: express.Response, next: NextFunction) => {
+            const originalSend = res.send;
+            res.send = function (body: any) {
+                if (typeof body === 'string' && body.includes('id="swagger-ui"')) {
+                    // Script thuần JavaScript chạy trực tiếp 100% dưới trình duyệt
+                    const customScript = `
+                        <script>
+                            window.addEventListener('load', () => {
+                                const injectTime = () => {
+                                    const textAreas = document.querySelectorAll('textarea.body-param__text');
+                                    textAreas.forEach((area) => {
+                                        if (area.value && area.value.includes('CURRENT_TIMESTAMP')) {
+                                            area.value = area.value.replace(/CURRENT_TIMESTAMP/g, new Date().toISOString());
+                                            area.dispatchEvent(new Event('input', { bubbles: true }));
+                                        }
+                                    });
+                                };
+
+                                // Quét liên tục mỗi 500ms để bắt mọi sự kiện Click, Cancel, Reset, Try it out
+                                injectTime();
+                                setInterval(injectTime, 500);
+                            });
+                        </script>
+                    `;
+                    body = body.replace('</body>', `${customScript}</body>`);
+                }
+                return originalSend.call(this, body);
+            };
+            next();
+        }, swaggerUi.serve, swaggerUi.setup(specs, swaggerOptions));
+    }
     // Root route
     app.get("/", (req, res) => {
         res.send("Hello, World!");

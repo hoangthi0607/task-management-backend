@@ -1,8 +1,14 @@
 import { taskRepository } from "./task.repository.js";
 import { Prisma, Task } from "../../generated/prisma/client.js";
 import { CreateTaskDto, UpdateTaskDto } from "./task.dto.js";
+import { INotificationPublisher } from "./task.interface.js";
 
 export class TaskService {
+  private notificationPublisher: INotificationPublisher;
+
+  constructor(notificationPublisher: INotificationPublisher) {
+    this.notificationPublisher = notificationPublisher;
+  }
   /**
    * Tạo một công việc mới
    */
@@ -11,8 +17,18 @@ export class TaskService {
     if (data.deadline && new Date(data.deadline) < new Date()) {
       throw new Error("Thời hạn (deadline) không được là ngày trong quá khứ");
     }
+    const createdTask = await taskRepository.create(data);
+    await this.notificationPublisher.publish({
+      id:  createdTask.task_id, // Sử dụng ID tạm thời nếu chưa có
+      name: createdTask.name,
+      description: createdTask.description || "",
+      deadline: createdTask.deadline || undefined,
+      status: createdTask.status || "todo",
+      project_id: createdTask.project_id || undefined,
+      assigned_user_id: createdTask.assigned_user_id || undefined
+    });
 
-    return taskRepository.create(data);
+    return createdTask;
   }
 
   /**
@@ -73,6 +89,15 @@ export class TaskService {
    * Logic nâng cao: Chuyển trạng thái task sang 'done'
    */
   async markAsDone(taskId: number): Promise<Task> {
-    return taskRepository.update(taskId, { status: 'done' });
+    await this.notificationPublisher.publish({
+      id: taskId,
+      status: "done",
+      name: "", // Có thể thêm tên nếu cần
+      description: "",
+      deadline: undefined,
+      project_id: undefined,
+      assigned_user_id: undefined
+    });
+    return taskRepository.update(taskId, { status: "done" });
   }
 }

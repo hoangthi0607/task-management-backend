@@ -10,3 +10,21 @@ export interface INotificationRepository {
   update(id: number, data: UpdateNotificationDto): Promise<Notification | null>;
   delete(id: number): Promise<Notification | null>;
 }
+
+export interface INotificationPublisher {
+  publish(event: any): Promise<void>;
+}
+
+// src/notifications/notification.interface.ts
+export interface TaskDueEvent {
+  eventId: string;
+  taskId: string;
+  userId: string;
+  scheduled_at: Date;
+  eventType: string;
+  timestamp: string;
+  payload: {
+    title: string;
+    body: string;
+  };
+}

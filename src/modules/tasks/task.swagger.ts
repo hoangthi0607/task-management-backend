@@ -20,6 +20,7 @@
  *           type: string
  *           format: date
  *           description: The deadline of the task
+ *           example: "CURRENT_TIMESTAMP"
  *         status:
  *           type: string
  *           enum: [todo, in_progress, done]
@@ -53,7 +54,7 @@
  *         deadline:
  *           type: string
  *           format: date-time
- *           example: "2026-04-29T00:00:00.000Z"
+ *           example: "CURRENT_TIMESTAMP"
  *           description: The deadline of the task (ISO 8601)
  *         status:
  *           type: string

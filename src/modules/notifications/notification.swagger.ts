@@ -24,6 +24,7 @@
  *           format: date-time
  *           nullable: true
  *           description: Thời gian hẹn giờ gửi thông báo (Định dạng ISO 8601)
+ *           example: "DYNAMIC_NOW"
  *         user_id:
  *           type: integer
  *           nullable: true

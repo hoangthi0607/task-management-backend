@@ -1,17 +1,15 @@
 import { Request, Response } from "express";
 import { TaskService } from "./task.service.js";
+export class taskController {
+  constructor(private taskService: TaskService) {}
 
-// Khởi tạo instance service
-const taskService = new TaskService();
-
-export const taskController = {
   /**
    * Tạo task mới
    * POST /tasks
    */
   async create(req: Request, res: Response) {
     try {
-      const task = await taskService.createTask(req.body);
+      const task = await this.taskService.createTask(req.body);
       res.status(201).json({
         message: "Tạo công việc thành công",
         data: task
@@ -19,7 +17,7 @@ export const taskController = {
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
-  },
+  }
 
   /**
    * Lấy tất cả task
@@ -27,7 +25,7 @@ export const taskController = {
    */
   async getAll(req: Request, res: Response) {
     try {
-      const tasks = await taskService.getAllTasks();
+      const tasks = await this.taskService.getAllTasks();
       res.status(200).json({
         total: tasks.length,
         data: tasks
@@ -35,7 +33,7 @@ export const taskController = {
     } catch (error: any) {
       res.status(500).json({ message: "Lỗi hệ thống khi lấy danh sách công việc" });
     }
-  },
+  }
 /**
    * Lấy chi tiết task theo ID
    */
@@ -49,12 +47,12 @@ export const taskController = {
         return res.status(400).json({ message: "ID công việc không hợp lệ" });
       }
 
-      const task = await taskService.getTaskById(taskId);
+      const task = await this.taskService.getTaskById(taskId);
       res.status(200).json(task);
     } catch (error: any) {
       res.status(404).json({ message: error.message });
     }
-  },
+  }
 
   /**
    * Cập nhật task
@@ -68,7 +66,7 @@ export const taskController = {
         return res.status(400).json({ message: "ID công việc không hợp lệ" });
       }
 
-      const updatedTask = await taskService.updateTask(taskId, req.body);
+      const updatedTask = await this.taskService.updateTask(taskId, req.body);
       res.status(200).json({
         message: "Cập nhật công việc thành công",
         data: updatedTask
@@ -76,7 +74,7 @@ export const taskController = {
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
-  },
+  }
 
   /**
    * Xóa task
@@ -89,12 +87,12 @@ export const taskController = {
         return res.status(400).json({ message: "ID công việc không hợp lệ" });
       }
 
-      await taskService.deleteTask(taskId);
+      await this.taskService.deleteTask(taskId);
       res.status(200).json({ message: `Đã xóa công việc thành công` });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
-  },
+  }
 
   /**
    * Lấy danh sách task của một project cụ thể
@@ -113,7 +111,7 @@ export const taskController = {
         return res.status(400).json({ message: "ID dự án không hợp lệ" });
       }
 
-      const tasks = await taskService.getTasksByProject(id);
+      const tasks = await this.taskService.getTasksByProject(id);
       res.status(200).json({
         project_id: id,
         total: tasks.length,
