@@ -7,9 +7,9 @@ const taskRouter = Router();
 const notificationPublisher = new RabbitMQNotificationPublisher();
 const taskService = new TaskService(notificationPublisher);
 const taskControllerInstance = new taskController(taskService);
-taskRouter.get("/", taskControllerInstance.getAll);
+taskRouter.get("/", (req, res) => taskControllerInstance.getAll(req, res));
 
-taskRouter.get("/:id", taskControllerInstance.getById);
+taskRouter.get("/:id", (req, res) => taskControllerInstance.getById(req, res));
 
 taskRouter.post("/", (req, res) => taskControllerInstance.create(req, res));
 

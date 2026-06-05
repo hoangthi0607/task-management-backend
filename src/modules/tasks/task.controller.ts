@@ -31,7 +31,7 @@ export class taskController {
         data: tasks
       });
     } catch (error: any) {
-      res.status(500).json({ message: "Lỗi hệ thống khi lấy danh sách công việc" });
+      res.status(500).json({ message: "Lỗi hệ thống khi lấy danh sách công việc", error: error.message });
     }
   }
 /**
